@@ -1,0 +1,88 @@
+Index: linux-4.4.60/fs/compat_binfmt_elf.c
+===================================================================
+--- linux-4.4.60.orig/fs/compat_binfmt_elf.c
++++ linux-4.4.60/fs/compat_binfmt_elf.c
+@@ -51,6 +51,7 @@
+ #define elf_prstatus	compat_elf_prstatus
+ #define elf_prpsinfo	compat_elf_prpsinfo
+ 
++#ifdef CONFIG_ELF_CORE
+ /*
+  * Compat version of cputime_to_compat_timeval, perhaps this
+  * should be an inline in <linux/compat.h>.
+@@ -63,7 +64,7 @@ static void cputime_to_compat_timeval(co
+ 	value->tv_sec = tv.tv_sec;
+ 	value->tv_usec = tv.tv_usec;
+ }
+-
++#endif
+ #undef cputime_to_timeval
+ #define cputime_to_timeval cputime_to_compat_timeval
+ 
+Index: linux-4.4.60/net/ipv6/protocol.c
+===================================================================
+--- linux-4.4.60.orig/net/ipv6/protocol.c
++++ linux-4.4.60/net/ipv6/protocol.c
+@@ -48,33 +48,9 @@ int inet6_del_protocol(const struct inet
+ 	return ret;
+ }
+ EXPORT_SYMBOL(inet6_del_protocol);
+-#endif
+-
+-const struct net_offload __rcu *inet6_offloads[MAX_INET_PROTOS] __read_mostly;
+-EXPORT_SYMBOL(inet6_offloads);
+-
+-int inet6_add_offload(const struct net_offload *prot, unsigned char protocol)
+-{
+-	return !cmpxchg((const struct net_offload **)&inet6_offloads[protocol],
+-			NULL, prot) ? 0 : -1;
+-}
+-EXPORT_SYMBOL(inet6_add_offload);
+-
+-int inet6_del_offload(const struct net_offload *prot, unsigned char protocol)
+-{
+-	int ret;
+-
+-	ret = (cmpxchg((const struct net_offload **)&inet6_offloads[protocol],
+-		       prot, NULL) == prot) ? 0 : -1;
+-
+-	synchronize_net();
+-
+-	return ret;
+-}
+-EXPORT_SYMBOL(inet6_del_offload);
+ 
+ int inet6_update_protocol(const struct inet6_protocol *new_prot,
+-		unsigned char protocol, const struct inet6_protocol **old_prot)
++                unsigned char protocol, const struct inet6_protocol **old_prot)
+ {
+ 	int ret;
+ 
+@@ -98,3 +74,27 @@ int inet6_update_protocol(const struct i
+ 	return ret;
+ }
+ EXPORT_SYMBOL(inet6_update_protocol);
++#endif
++
++const struct net_offload __rcu *inet6_offloads[MAX_INET_PROTOS] __read_mostly;
++EXPORT_SYMBOL(inet6_offloads);
++
++int inet6_add_offload(const struct net_offload *prot, unsigned char protocol)
++{
++	return !cmpxchg((const struct net_offload **)&inet6_offloads[protocol],
++			NULL, prot) ? 0 : -1;
++}
++EXPORT_SYMBOL(inet6_add_offload);
++
++int inet6_del_offload(const struct net_offload *prot, unsigned char protocol)
++{
++	int ret;
++
++	ret = (cmpxchg((const struct net_offload **)&inet6_offloads[protocol],
++		       prot, NULL) == prot) ? 0 : -1;
++
++	synchronize_net();
++
++	return ret;
++}
++EXPORT_SYMBOL(inet6_del_offload);
