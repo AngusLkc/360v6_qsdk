@@ -1,0 +1,18 @@
+Index: linux-4.4.60/arch/arm64/mm/ioremap.c
+===================================================================
+--- linux-4.4.60.orig/arch/arm64/mm/ioremap.c
++++ linux-4.4.60/arch/arm64/mm/ioremap.c
+@@ -52,12 +52,12 @@ static void __iomem *__ioremap_caller(ph
+ 	if (!size || last_addr < phys_addr || (last_addr & ~PHYS_MASK))
+ 		return NULL;
+ 
+	/*
+	 * Don't allow RAM to be mapped.
+	 */
+-	if (WARN_ON(pfn_valid(__phys_to_pfn(phys_addr))))
++	if (pfn_valid(__phys_to_pfn(phys_addr)))
+		return NULL;
+
+ 	area = get_vm_area_caller(size, VM_IOREMAP, caller);
+ 	if (!area)
+ 		return NULL;
