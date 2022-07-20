@@ -86,3 +86,16 @@ Index: linux-4.4.60/net/ipv6/protocol.c
 +	return ret;
 +}
 +EXPORT_SYMBOL(inet6_del_offload);
+ 
+Index: linux-4.4.60/drivers/scsi/sg.c
+===================================================================
+--- linux-4.4.60.orig/drivers/scsi/sg.c
++++ linux-4.4.60/drivers/scsi/sg.c
+@@ -984,7 +984,6 @@ sg_ioctl(struct file *filp, unsigned int
+ 		if (val != sfp->reserve.bufflen) {
+ 			if (sg_res_in_use(sfp) || sfp->mmap_called)
+ 				return -EBUSY;
+-			}
+ 			mutex_lock(&sfp->parentdp->open_rel_lock);
+ 			sg_remove_scat(sfp, &sfp->reserve);
+ 			sg_build_reserve(sfp, val);
